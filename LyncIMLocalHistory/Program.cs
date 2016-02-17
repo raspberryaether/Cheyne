@@ -63,7 +63,6 @@ gbl@bujok.cz";
         private const int CONNECT_RETRY_WAIT_TIME_MS = 5000;
         private const int CONNECT_RETRY_MAX = -1; // -1 to retry indefinitely
 
-
         static void Main(string[] args)
         {
             Application.EnableVisualStyles();
@@ -91,7 +90,7 @@ gbl@bujok.cz";
             connect();
         }
 
-        void consoleWriteLine(String text = "")
+		void consoleWriteLine(String text = "")
         {
             Console.WriteLine(text);
             if (this.consoleBox.InvokeRequired)
@@ -116,7 +115,7 @@ gbl@bujok.cz";
                 nextConvId = int.Parse(idFile.ReadLine());
                 consoleWriteLine("Last conversation number found: " + nextConvId);
             }
-            catch (Exception _ex)
+            catch (Exception)
             {
                 nextConvId = 1;
                 consoleWriteLine("No previous conversation number found. Using default.");
@@ -127,38 +126,41 @@ gbl@bujok.cz";
         }
 
         async void connect()
-        {
-            lyncClient = null;
-            bool tryAgain = false;
-            int attempts = 0;
-            do
+        {		
+			int connectRetriesRemaining = CONNECT_RETRY_MAX;
+			bool insist = (connectRetriesRemaining < 0);
+			bool wait = false;
+
+			lyncClient = null;
+
+            while (lyncClient == null &&
+                   (insist || connectRetriesRemaining-- > 0))
             {
-                tryAgain = false;
-                attempts++;
+                if (wait)
+                {
+                    consoleWriteLine(String.Format("Waiting {0}ms before next connection attempt...",
+                                                   CONNECT_RETRY_WAIT_TIME_MS));
+                    await Task.Delay(CONNECT_RETRY_WAIT_TIME_MS);
+                }
+
                 try
                 {
-                    if (attempts > 1)
-                        consoleWriteLine(String.Format("Connecting to Lync Client. Attempt {0}...", attempts));
-                    else
-                        consoleWriteLine("Connecting to Lync Client...");
+                    consoleWriteLine(String.Format("Establishing connection to Lync ({0} attempts remain)...",
+                                                   (insist ? "infinite" : connectRetriesRemaining.ToString())));
                     lyncClient = LyncClient.GetClient();
                 }
-                catch (LyncClientException _exception)
+                catch (LyncClientException)
                 {
-                    tryAgain = true;
-                    if (CONNECT_RETRY_MAX < 0 || attempts <= CONNECT_RETRY_MAX)
-                    {
-                        consoleWriteLine(String.Format("Client not found. Trying again in {0} seconds.", CONNECT_RETRY_WAIT_TIME_MS / 1000));
-                        await Task.Delay(CONNECT_RETRY_WAIT_TIME_MS);
-                    }
-                    else
-                    {
-                        consoleWriteLine("Client not found. Too many attempts. Giving up.");
-                        Console.ReadLine();
-                        return;
-                    }
+                    consoleWriteLine("Connection attempt failed...");
                 }
-            } while (tryAgain);
+                catch (Exception)
+                {
+                    consoleWriteLine("Connection attempt failed catastrophically...");
+                }
+
+                wait = true;
+            }
+                       
             myself = lyncClient.Self;
             if (!Directory.Exists(mydocpath + programFolder))
                 Directory.CreateDirectory(mydocpath + programFolder);
@@ -168,7 +170,7 @@ gbl@bujok.cz";
             lyncClient.ConversationManager.ConversationRemoved += ConversationManager_ConversationRemoved;
             consoleWriteLine("Ready!");
             consoleWriteLine();
-            Console.ReadLine();
+           // Console.ReadLine();
 
             keepAliveTimer.Enabled = true;
         }
@@ -190,7 +192,7 @@ gbl@bujok.cz";
                     outfile.Close();
                 }
             }
-            catch(Exception _ex)
+            catch(Exception)
             {
                 //ignore
             }
@@ -257,7 +259,6 @@ gbl@bujok.cz";
 
         void ConversationManager_ConversationRemoved(object sender, Microsoft.Lync.Model.Conversation.ConversationManagerEventArgs e)
         {
-            string ConversationID = e.Conversation.Properties[ConversationProperty.Id].ToString();
             e.Conversation.ParticipantAdded -= Conversation_ParticipantAdded;
             e.Conversation.ParticipantRemoved -= Conversation_ParticipantRemoved;
             if (ActiveConversations.ContainsKey(e.Conversation))
