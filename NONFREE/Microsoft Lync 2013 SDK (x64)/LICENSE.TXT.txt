@@ -1,0 +1,13 @@
+The files in this directory are included in compliance with the Microsoft Lync 2013 SDK license agreement. According to Microsoft, "Subject to the license terms for the Software, the following files may be redistributed unmodified:"
+
+Microsoft.Lync.Controls.dll*
+Microsoft.Lync.Controls.Framework.dll*
+Microsoft.Lync.Model.dll
+Microsoft.Lync.Utilities.dll*
+Microsoft.Office.Uc.dll
+
+*Starred files are not included as of this writing, as they are not used.
+
+BE AWARE that redistribution of these files is subject to the terms of the Microsoft Lync 2013 SDK license agreement, a copy of which is not distributed here due to licensing concerns. The author of this message believes that said terms authorize third parties to redistribute the software in this manner as well. 
+
+The author of this message is not a lawyer, and this is not legal advice.
