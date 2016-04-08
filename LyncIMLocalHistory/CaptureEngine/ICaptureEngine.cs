@@ -9,17 +9,32 @@ namespace LyncIMLocalHistory.CaptureEngine
 
     class ConversationEventArgs : EventArgs
     {
-        public Concept.ConversationInfo Info { get; set; }
+        public ConversationEventArgs( Concept.ConversationInfo info )
+        {
+            Info = info;
+        }
+
+        public Concept.ConversationInfo Info { get; private set; }
     }
 
     class MessageEventArgs : EventArgs
     {
-        public Concept.Message Message { get; set; }
+        public MessageEventArgs(Concept.Message message)
+        {
+            Message = message;
+        }
+
+        public Concept.Message Message { get; private set; }
     }
 
     class LogEventArgs : EventArgs
     {
-        public string Message { get; set; }
+        public LogEventArgs( string message )
+        {
+            Message = message;
+        }
+
+        public string Message { get; private set; }
     }
 
     interface ICaptureEngine

@@ -18,18 +18,32 @@ namespace LyncIMLocalHistory.CaptureEngine
             Prepare();
         }
 
+        private StorageEngine.IStorageEngine _storageEngine;
+        public StorageEngine.IStorageEngine StorageEngine
+        {
+            get
+            {
+                return _storageEngine;
+            }
+            set
+            {
+                if (_storageEngine != null)
+                {
+                    _storageEngine.Unsubscribe(this);
+                }
+
+                _storageEngine = value;
+                _storageEngine.Subscribe(this);                
+            }
+        }
+
         private LyncClient _client;
         private Timer _keepAliveTimer;
-        private Concept.ConversationInfoFactory _conversationInfoFactory;
 
         /**
          * A list of currently active conversations.
          */
         private Dictionary<Conversation, Concept.ConversationInfo> ActiveConversations = new Dictionary<Conversation, Concept.ConversationInfo>();
-
-        private readonly string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        private readonly string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        private const string programFolder = @"\LyncIMHistory";
 
         private const int BALLOON_POPUP_TIMEOUT_MS = 3000;
         private const int KEEP_ALIVE_INTERVAL_MS = 5000;
@@ -63,27 +77,12 @@ namespace LyncIMLocalHistory.CaptureEngine
 
             if( LogRequested != null )
             {
-                LogRequested(this, new LogEventArgs(){ Message = text });
+                LogRequested(this, new LogEventArgs(text));
             }
         }
 
         void Prepare()
         {
-            //read previous conversation ID
-            try
-            {
-                StreamReader idFile = new StreamReader(appDataPath + programFolder + @"\nextConvId.txt");
-                uint nextConvId = uint.Parse(idFile.ReadLine());
-                _conversationInfoFactory = new Concept.ConversationInfoFactory(nextConvId - 1);
-
-                ConsoleWriteLine("Last conversation number found: " + nextConvId);
-            }
-            catch (Exception)
-            {
-                _conversationInfoFactory = new Concept.ConversationInfoFactory(1);
-                ConsoleWriteLine("No previous conversation number found. Using default.");
-            }
-
             _keepAliveTimer = new Timer(KEEP_ALIVE_INTERVAL_MS);
             _keepAliveTimer.Elapsed += OnKeepAliveTimerElapsed;
             _keepAliveTimer.Enabled = false;
@@ -125,12 +124,9 @@ namespace LyncIMLocalHistory.CaptureEngine
                 wait = true;
             }
 
-            if (!Directory.Exists(mydocpath + programFolder))
-                Directory.CreateDirectory(mydocpath + programFolder);
-            if (!Directory.Exists(appDataPath + programFolder))
-                Directory.CreateDirectory(appDataPath + programFolder);
+
             _client.ConversationManager.ConversationAdded += OnConversationAdded;
-            _client.ConversationManager.ConversationRemoved += ConversationManager_ConversationRemoved;
+            _client.ConversationManager.ConversationRemoved += OnConversationRemoved;
             ConsoleWriteLine("Ready!");
             ConsoleWriteLine();
 
@@ -139,31 +135,20 @@ namespace LyncIMLocalHistory.CaptureEngine
 
         void OnConversationAdded(object sender, Microsoft.Lync.Model.Conversation.ConversationManagerEventArgs e)
         {
-            Concept.ConversationInfo newInfo = _conversationInfoFactory.AllocateConversationInfo();
-
+            Concept.ConversationInfo newInfo = _storageEngine.AllocateConversation();
             ActiveConversations.Add(e.Conversation, newInfo);
 
-            try
+            if (ConversationStarted != null)
             {
-                using (StreamWriter outfile = new StreamWriter(appDataPath + programFolder + @"\nextConvId.txt", false))
-                {
-                    outfile.WriteLine(_conversationInfoFactory._lastId);
-                    outfile.Close();
-                }
+                ConversationEventArgs args = new ConversationEventArgs(ActiveConversations[e.Conversation]);
             }
-            catch (Exception)
-            {
-                //ignore
-                // TODO: get rid of no-op catch
-            }
-
+            
             e.Conversation.ParticipantAdded += OnParticipantAdded;
             e.Conversation.ParticipantRemoved += OnParticipantRemoved;
 
+            // TODO: raise an event for consumption by UI and get rid of write line
             String s = String.Format("Conversation #{0} started.", newInfo.Identifier);
             ConsoleWriteLine(s);
-
-            // TODO: raise an event for consumption by UI            
         }
 
         void OnParticipantRemoved(object sender, Microsoft.Lync.Model.Conversation.ParticipantCollectionChangedEventArgs args)
@@ -190,48 +175,30 @@ namespace LyncIMLocalHistory.CaptureEngine
             Concept.ConversationInfo info = ActiveConversations[imm.Conversation];
             DateTime now = DateTime.Now;
 
-            // TODO: factor out into events
-            String convlog = "[" + now + "] (Conv. #" + info.Identifier + ") <" + imm.Participant.Contact.GetContactInformation(ContactInformationType.DisplayName) + ">";
-            convlog += Environment.NewLine + args.Text;
-            using (StreamWriter outfile = new StreamWriter(mydocpath + programFolder + @"\AllLyncIMHistory.txt", true))
-            {
-                outfile.WriteLine(convlog);
-                outfile.Close();
-            }
-            foreach (Participant participant in imm.Conversation.Participants)
-            {
-                if (participant.Contact == _client.Self.Contact)
-                    continue;
-                String directory = mydocpath + programFolder + @"\" + participant.Contact.GetContactInformation(ContactInformationType.DisplayName);
-                if (!Directory.Exists(directory))
-                    Directory.CreateDirectory(directory);
-                string dateString = now.ToString("yyyy-MM-dd");
-                String filename = directory + @"\" + dateString + ".txt";
-                //consoleWriteLine(filename);
-                using (StreamWriter partfile = new StreamWriter(filename, true))
-                {
-                    partfile.WriteLine(convlog);
-                    partfile.Close();
-                }
-            }
+            
+            string authorName = imm.Participant.Contact.GetContactInformation(ContactInformationType.DisplayName) as string;
+            Concept.Individual author = _storageEngine.GetIndividualByName(authorName);
+            Concept.Message newMessage = new Concept.Message(info, DateTime.Now, author, args.Text);
 
-            ConsoleWriteLine(convlog);
+            if( MessageCaptured != null )
+            {
+                MessageCaptured(this, new MessageEventArgs(newMessage));
+            }
         }
 
-        void ConversationManager_ConversationRemoved(object sender, Microsoft.Lync.Model.Conversation.ConversationManagerEventArgs e)
+        void OnConversationRemoved(object sender, Microsoft.Lync.Model.Conversation.ConversationManagerEventArgs e)
         {
             e.Conversation.ParticipantAdded -= OnParticipantAdded;
             e.Conversation.ParticipantRemoved -= OnParticipantRemoved;
-            if (ActiveConversations.ContainsKey(e.Conversation))
+            if (ActiveConversations.ContainsKey(e.Conversation) )
             {
                 Concept.ConversationInfo info = ActiveConversations[e.Conversation];
-                TimeSpan conversationLength = DateTime.Now.Subtract(info.StartTime);
-                ConsoleWriteLine(String.Format("Conversation #{0} ended. It lasted {1} seconds", info.Identifier, conversationLength.ToString(@"hh\:mm\:ss")));
                 ActiveConversations.Remove(e.Conversation);
 
-                String s = String.Format("Conversation #{0} ended.", info.Identifier);
-
-                // TODO: raise event for UI consumption                
+                if (ConversationFinished != null)
+                {
+                    ConversationFinished(this, new ConversationEventArgs(info));
+                }                               
             }
         }
     }
