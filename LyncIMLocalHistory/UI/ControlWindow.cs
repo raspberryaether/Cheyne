@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
 using LyncIMLocalHistory.CaptureEngine;
 using LyncIMLocalHistory.LogEngine;
 using System.Windows.Forms;
@@ -22,12 +21,6 @@ namespace LyncIMLocalHistory.UI
             this.textBox1.Text = welcomeText.Replace("\n", Environment.NewLine);
 
             Log.MessageCaptured += OnLogMessageCaptured;
-        }
-
-        // TODO remove this
-        public void SubscribeToLoggingEvents(ICaptureEngine _captureEngine)
-        {
-            _captureEngine.LogRequested += OnLogRequested;
         }
 
         public string welcomeText = Resources.ResourceManager.GetString("ApplicationDescription");

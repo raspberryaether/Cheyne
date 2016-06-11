@@ -9,6 +9,8 @@ using Microsoft.Lync.Model.Conversation;
 using System.Timers;
 using System.IO;
 
+using LyncIMLocalHistory.LogEngine;
+
 namespace LyncIMLocalHistory.CaptureEngine
 {
     class LyncCaptureEngine : ICaptureEngine
@@ -55,7 +57,6 @@ namespace LyncIMLocalHistory.CaptureEngine
         public event EventHandler Disconnected; //TODO: implementation
         public event EventHandler Connected; //TODO: implementation
         public event EventHandler<MessageEventArgs> MessageCaptured;
-        public event EventHandler<LogEventArgs> LogRequested;
 
         void OnKeepAliveTimerElapsed(Object myObject, EventArgs myEventArgs)
         {
@@ -65,17 +66,8 @@ namespace LyncIMLocalHistory.CaptureEngine
             }
 
             _keepAliveTimer.Stop();
-            ConsoleWriteLine("Lost connection to Lync client; retrying connection");
+            Log.Error("Lost connection to Lync client; retrying connection");
             Connect();
-        }
-
-        void ConsoleWriteLine(String text = "")
-        {
-            // TODO: send other events in all places this is called if it makes sense...
-
-            Console.WriteLine(text);
-
-            LogRequested?.Invoke(this, new LogEventArgs(text));
         }
 
         void Prepare()
@@ -98,24 +90,24 @@ namespace LyncIMLocalHistory.CaptureEngine
             {
                 if (wait)
                 {
-                    ConsoleWriteLine(String.Format("Waiting {0}ms before next connection attempt...",
-                                                   CONNECT_RETRY_WAIT_TIME_MS));
+                    Log.Debug(String.Format("Waiting {0}ms before next connection attempt...",
+                                            CONNECT_RETRY_WAIT_TIME_MS));
                     await Task.Delay(CONNECT_RETRY_WAIT_TIME_MS);
                 }
 
                 try
                 {
-                    ConsoleWriteLine(String.Format("Establishing connection to Lync ({0} attempts remain)...",
-                                                   (insist ? "infinite" : connectRetriesRemaining.ToString())));
+                    Log.Info(String.Format("Establishing connection to Lync ({0} attempts remain)...",
+                                           (insist ? "infinite" : connectRetriesRemaining.ToString())));
                     _client = LyncClient.GetClient();
                 }
                 catch (LyncClientException)
                 {
-                    ConsoleWriteLine("Connection attempt failed...");
+                    Log.Error("Connection attempt failed...");
                 }
                 catch (Exception)
                 {
-                    ConsoleWriteLine("Connection attempt failed catastrophically...");
+                    Log.WriteLine(Severity.Calamity, ("error: Connection attempt failed catastrophically..."));
                 }
 
                 wait = true;
@@ -124,8 +116,7 @@ namespace LyncIMLocalHistory.CaptureEngine
 
             _client.ConversationManager.ConversationAdded += OnConversationAdded;
             _client.ConversationManager.ConversationRemoved += OnConversationRemoved;
-            ConsoleWriteLine("Ready!");
-            ConsoleWriteLine();
+            Log.Info("Intialization complete.");
 
             _keepAliveTimer.Enabled = true;
         }
@@ -141,27 +132,25 @@ namespace LyncIMLocalHistory.CaptureEngine
             ConversationEventArgs args = new ConversationEventArgs(ActiveConversations[e.Conversation]);
             ConversationStarted?.Invoke(this, args);
 
-            // TODO: raise an event for consumption by UI and get rid of write line
-            String s = String.Format("Conversation #{0} started.", newInfo.Identifier);
-            ConsoleWriteLine(s);
+            Log.Info(String.Format("Conversation #{0} started.", newInfo.Identifier));
         }
 
         void OnParticipantRemoved(object sender, Microsoft.Lync.Model.Conversation.ParticipantCollectionChangedEventArgs args)
         {
             (args.Participant.Modalities[ModalityTypes.InstantMessage] as InstantMessageModality).InstantMessageReceived -= OnInstantMessageReceived;
             if (args.Participant.Contact == _client.Self.Contact)
-                ConsoleWriteLine("You were removed.");
+                Log.Info("You were removed from the conversation."); // TODO: what conversation? specify conversation ID
             else
-                ConsoleWriteLine("Participant was removed: " + args.Participant.Contact.GetContactInformation(ContactInformationType.DisplayName));
+                Log.Info("Participant was removed from the conversation: " + args.Participant.Contact.GetContactInformation(ContactInformationType.DisplayName));
         }
 
         void OnParticipantAdded(object sender, Microsoft.Lync.Model.Conversation.ParticipantCollectionChangedEventArgs args)
         {
             (args.Participant.Modalities[ModalityTypes.InstantMessage] as InstantMessageModality).InstantMessageReceived += OnInstantMessageReceived;
             if (args.Participant.Contact == _client.Self.Contact)
-                ConsoleWriteLine("You were added.");
+                Log.Info("You were added to the conversation.");
             else
-                ConsoleWriteLine("Participant was added: " + args.Participant.Contact.GetContactInformation(ContactInformationType.DisplayName));
+                Log.Info("Participant was added to the conversation: " + args.Participant.Contact.GetContactInformation(ContactInformationType.DisplayName));
         }
 
         void OnInstantMessageReceived(object sender, Microsoft.Lync.Model.Conversation.MessageSentEventArgs args)

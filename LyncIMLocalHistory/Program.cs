@@ -49,7 +49,6 @@ namespace LyncIMLocalHistory
             InitControlWindow();           
 
             _storageEngine.Subscribe(_captureEngine);
-            _controlWindow.SubscribeToLoggingEvents(_captureEngine); // TODO remove this
             _captureEngine.Connect();
 
             Application.Run(_controlWindow);

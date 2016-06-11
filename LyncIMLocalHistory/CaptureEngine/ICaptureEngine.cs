@@ -48,8 +48,5 @@ namespace LyncIMLocalHistory.CaptureEngine
         event EventHandler Connected;
 
         event EventHandler<MessageEventArgs> MessageCaptured;
-
-        // TODO: remove dependencies on this event and remove it
-        event EventHandler<LogEventArgs> LogRequested;
     }
 }
