@@ -12,10 +12,7 @@ namespace LyncIMLocalHistory.LogEngine
 
         public static void WriteLine(uint severity, string message)
         {
-            if (MessageCaptured != null)
-            {
-                MessageCaptured(typeof(Log), new LogEventArgs(message, severity));
-            }
+            MessageCaptured?.Invoke(typeof(Log), new LogEventArgs(message, severity));
         }
 
         public static void WriteLine( Severity severity, string message)

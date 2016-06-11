@@ -52,8 +52,8 @@ namespace LyncIMLocalHistory.CaptureEngine
 
         public event EventHandler<ConversationEventArgs> ConversationStarted;
         public event EventHandler<ConversationEventArgs> ConversationFinished;
-        public event EventHandler Disconnected;
-        public event EventHandler Connected;
+        public event EventHandler Disconnected; //TODO: implementation
+        public event EventHandler Connected; //TODO: implementation
         public event EventHandler<MessageEventArgs> MessageCaptured;
         public event EventHandler<LogEventArgs> LogRequested;
 
@@ -75,10 +75,7 @@ namespace LyncIMLocalHistory.CaptureEngine
 
             Console.WriteLine(text);
 
-            if( LogRequested != null )
-            {
-                LogRequested(this, new LogEventArgs(text));
-            }
+            LogRequested?.Invoke(this, new LogEventArgs(text));
         }
 
         void Prepare()
@@ -138,13 +135,11 @@ namespace LyncIMLocalHistory.CaptureEngine
             Concept.ConversationInfo newInfo = _storageEngine.AllocateConversation();
             ActiveConversations.Add(e.Conversation, newInfo);
 
-            if (ConversationStarted != null)
-            {
-                ConversationEventArgs args = new ConversationEventArgs(ActiveConversations[e.Conversation]);
-            }
-            
             e.Conversation.ParticipantAdded += OnParticipantAdded;
             e.Conversation.ParticipantRemoved += OnParticipantRemoved;
+
+            ConversationEventArgs args = new ConversationEventArgs(ActiveConversations[e.Conversation]);
+            ConversationStarted?.Invoke(this, args);
 
             // TODO: raise an event for consumption by UI and get rid of write line
             String s = String.Format("Conversation #{0} started.", newInfo.Identifier);
@@ -180,10 +175,8 @@ namespace LyncIMLocalHistory.CaptureEngine
             Concept.Individual author = _storageEngine.GetIndividualByName(authorName);
             Concept.Message newMessage = new Concept.Message(info, DateTime.Now, author, args.Text);
 
-            if( MessageCaptured != null )
-            {
-                MessageCaptured(this, new MessageEventArgs(newMessage));
-            }
+            MessageCaptured?.Invoke(this, new MessageEventArgs(newMessage));
+            
         }
 
         void OnConversationRemoved(object sender, Microsoft.Lync.Model.Conversation.ConversationManagerEventArgs e)
@@ -195,10 +188,7 @@ namespace LyncIMLocalHistory.CaptureEngine
                 Concept.ConversationInfo info = ActiveConversations[e.Conversation];
                 ActiveConversations.Remove(e.Conversation);
 
-                if (ConversationFinished != null)
-                {
-                    ConversationFinished(this, new ConversationEventArgs(info));
-                }                               
+                ConversationFinished?.Invoke(this, new ConversationEventArgs(info));
             }
         }
     }

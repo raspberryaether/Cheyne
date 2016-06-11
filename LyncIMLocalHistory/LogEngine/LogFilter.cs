@@ -18,7 +18,7 @@ namespace LyncIMLocalHistory.LogEngine
         {
             if(e.Severity >= HighPassFilter && MessageCaptured != null)
             {
-                MessageCaptured(this, e);
+                MessageCaptured?.Invoke(this, e);
             }
         }
 
