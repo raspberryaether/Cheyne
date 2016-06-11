@@ -68,6 +68,11 @@
     <Compile Include="LogEngine\Severity.cs" />
     <Compile Include="LogEngine\Log.cs" />
     <Compile Include="LogEngine\LogEventArgs.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="StorageEngine\IStorageEngine.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
