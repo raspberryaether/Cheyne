@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using LyncIMLocalHistory.CaptureEngine;
-using LyncIMLocalHistory.LogEngine;
+using Cheyne.CaptureEngine;
+using Cheyne.LogEngine;
 using System.Windows.Forms;
 
-namespace LyncIMLocalHistory.UI
+namespace Cheyne.UI
 {
     class ControlWindow : System.Windows.Forms.Form
     {
@@ -91,15 +91,15 @@ namespace LyncIMLocalHistory.UI
             this.Controls.Add(this.consoleBox);
             this.Controls.Add(this.textBox1);
             this.Name = "Program";
-            this.Text = "Lync IM Local History";
+            this.Text = "Cheyne";
             // 
             // notifyIcon
             // 
             this.notifyIcon.BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Info; //Shows the info icon so the user doesn't thing there is an error.
-            this.notifyIcon.BalloonTipText = "Lync history minimized";
-            this.notifyIcon.BalloonTipTitle = "Lync history";
+            this.notifyIcon.BalloonTipText = "Cheyne is still running in the background...";
+            this.notifyIcon.BalloonTipTitle = "Cheyne";
             this.notifyIcon.Icon = this.Icon; //The tray icon to use
-            this.notifyIcon.Text = "Lync history recorder";
+            this.notifyIcon.Text = "Cheyne: history recorder for Microsoft Lync";
             this.notifyIcon.DoubleClick += OnNotifyIconDoubleClick;
 
             this.ResumeLayout(false);
@@ -112,7 +112,7 @@ namespace LyncIMLocalHistory.UI
             if (WindowState == FormWindowState.Minimized)
             {
                 notifyIcon.Visible = true;
-                notifyIcon.BalloonTipText = "Lync history minimized";
+                notifyIcon.BalloonTipText = "Cheyne is still running in the background...";
                 notifyIcon.ShowBalloonTip(BALLOON_POPUP_TIMEOUT_MS);
                 this.ShowInTaskbar = false;
             }

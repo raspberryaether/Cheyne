@@ -9,9 +9,9 @@ using Microsoft.Lync.Model.Conversation;
 using System.Timers;
 using System.IO;
 
-using LyncIMLocalHistory.LogEngine;
+using Cheyne.LogEngine;
 
-namespace LyncIMLocalHistory.CaptureEngine
+namespace Cheyne.CaptureEngine
 {
     class LyncCaptureEngine : ICaptureEngine
     {

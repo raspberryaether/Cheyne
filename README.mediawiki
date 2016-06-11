@@ -1,13 +1,12 @@
-= '''LyncIMLocalHistory''' (Raspberry Aether fork, name TBD) =
+= '''Cheyne''' for Microsoft Lync =
 
-Simple IM conversation tracker for people who want to keep the conversation 
-history and can not use Lync or Skype for Business for it directly (disabled by IT administrators through group policy), or who may just want more control over the data.
+Cheyne (pronounced "chain", as in a connected series of "links") is a local conversation history recorder for Microsoft Lync (and its successor, Skype for Business). It hooks directly into the Lync SDK to receive messages.
 
-Conversations are stored in [your documents]\LyncIMHistory folder.
+This software is useful for people who want to keep conversation history and cannot use the history features of Lync or Skype for Business (e.g. it is disabled by IT administrators through group policy), or for those who may just want more control over their data.
 
-Forked from LyncIMLocalHistory by Jonas Bujok (https://github.com/bujocek).
+Currently, conversations are stored in [your documents]\LyncIMHistory folder. In a future release, support for an encrypted history database will be added.
 
-Thanks to Jonas for his blessing. 
+Forked from LyncIMLocalHistory by Jonas Bujok (https://github.com/bujocek); many thanks to Jonas for his blessing.
 
 ;Please, if you like this software, buy Jonas a beer:
 :Jonas Bujok

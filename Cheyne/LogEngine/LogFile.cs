@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LyncIMLocalHistory.LogEngine
+namespace Cheyne.LogEngine
 {
     public class LogFile
     {

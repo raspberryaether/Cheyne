@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 
-using LyncIMLocalHistory.CaptureEngine;
+using Cheyne.CaptureEngine;
 
-namespace LyncIMLocalHistory.StorageEngine
+namespace Cheyne.StorageEngine
 {
 
     class LegacyStorageEngine : IStorageEngine

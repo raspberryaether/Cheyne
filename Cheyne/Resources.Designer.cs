@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace LyncIMLocalHistory {
+namespace Cheyne {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace LyncIMLocalHistory {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("LyncIMLocalHistory.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Cheyne.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,12 +61,10 @@ namespace LyncIMLocalHistory {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Simple IM conversation tracker for people who want to keep the conversation 
-        ///history and can not use Lync or Skype for Business for it directly (disabled by IT administrators through group policy), or who may just want more control over the data.
+        ///   Looks up a localized string similar to About Cheyne
+        ///==========
         ///
-        ///Conversations are stored in [your documents]\LyncIMHistory folder.
-        ///
-        ///Forked from LyncIMLocalHistory by Jonas Bujok (https://github.com/bujocek).
+        ///Cheyne was forked from LyncIMLocalHistory by Jonas Bujok (https://github.com/bujocek).
         ///
         ///Thanks to Jonas for his blessing. Please, if you like this software, buy Jonas a beer..
         /// </summary>

@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Threading.Tasks;
 
-using LyncIMLocalHistory.StorageEngine;
-using LyncIMLocalHistory.CaptureEngine;
-using LyncIMLocalHistory.LogEngine;
-using LyncIMLocalHistory.UI;
+using Cheyne.StorageEngine;
+using Cheyne.CaptureEngine;
+using Cheyne.LogEngine;
+using Cheyne.UI;
 
-namespace LyncIMLocalHistory
+namespace Cheyne
 {
     class Program
     {

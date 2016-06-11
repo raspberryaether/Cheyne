@@ -3,14 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LyncIMLocalHistory", "LyncIMLocalHistory\LyncIMLocalHistory.csproj", "{F75C67A2-DF74-454A-B022-EF2253370E8E}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6C84EAA3-8447-48D9-816E-D73208E86912}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		LICENSE.txt = LICENSE.txt
 		README.mediawiki = README.mediawiki
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cheyne", "Cheyne\Cheyne.csproj", "{F75C67A2-DF74-454A-B022-EF2253370E8E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

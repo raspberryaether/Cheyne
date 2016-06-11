@@ -7,8 +7,8 @@
     <ProjectGuid>{F75C67A2-DF74-454A-B022-EF2253370E8E}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LyncIMLocalHistory</RootNamespace>
-    <AssemblyName>LyncIMLocalHistory</AssemblyName>
+    <RootNamespace>Cheyne</RootNamespace>
+    <AssemblyName>Cheyne</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
